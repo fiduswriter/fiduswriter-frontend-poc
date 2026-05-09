@@ -28,10 +28,10 @@ npm start
 Then open your browser at:
 
 ```
-http://localhost:3000/document/1/
+http://localhost:3000/
 ```
 
-The editor will load a pre-created demo document. Any changes you make will be auto-saved to `data/document.json` every 10 seconds.
+The editor will load a pre-created demo document. Any changes you make will be auto-saved to `data/document.json` every 10 seconds (only when the document has actually changed).
 
 ## Updating the frontend from the main repo
 
@@ -57,7 +57,7 @@ This will:
 ├── update-from-source.sh  # Script to refresh assets from main repo
 ├── index.html             # SPA shell (replaces Django's app.html template)
 ├── data/
-│   └── document.json      # The single stored document
+│   └── document.json      # The single stored document (initial fixture)
 ├── static/
 │   ├── js/                # Bundled JavaScript from Fidus Writer (Rspack output)
 │   ├── css/               # Stylesheets
@@ -71,6 +71,10 @@ This will:
 └── LICENSE
 ```
 
+### Data persistence and Git
+
+`data/document.json` is kept in the repository as an initial fixture so the editor can load a document on first run. Runtime edits (version bumps, content changes) are ignored by Git via `git update-index --skip-worktree data/document.json`. If you want to commit an updated fixture, temporarily disable this with `git update-index --no-skip-worktree data/document.json`.
+
 ## API endpoints provided
 
 | Endpoint | Description |
@@ -78,10 +82,12 @@ This will:
 | `POST /api/base/configuration/` | Returns mock user config (authenticated demo user) |
 | `POST /api/document/get_doc_data/` | Loads the document from `data/document.json` |
 | `POST /api/document/get_doc_styles/` | Returns empty document styles/templates |
+| `POST /api/document/get_template_for_doc/` | Returns the document's template for export |
 | `POST /api/document/save/` | Saves the document and increments version |
 | `POST /api/document/get_ws_base/` | Returns empty WebSocket base (collab disabled) |
 | `POST /api/bibliography/biblist/` | Returns empty bibliography |
 | `POST /api/usermedia/images/` | Returns empty image database |
+| `POST /api/feedback/feedback/` | Accepts feedback messages (logged to console) |
 
 ## Limitations of this POC
 
@@ -92,10 +98,17 @@ This will:
 - **No export**: Export templates are not configured.
 - **No service worker**: Offline support is disabled.
 - **No template adjustment on load**: The document template is not sent with `get_doc_data`, so the editor skips the adjust-to-template worker step.
+- **Simplified File menu**: Share, Save revision, Create copy, and Change password menu items are removed at runtime since they require backend features not present in this POC.
 
 ## Relationship to the main Fidus Writer project
 
-This POC is a snapshot of the frontend build output from the main [Fidus Writer](https://github.com/fiduswriter/fiduswriter) project. The JavaScript bundles are copied verbatim from `static-transpile/` and `static-collected/`; no source code was modified.
+This POC is a snapshot of the frontend build output from the main [Fidus Writer](https://github.com/fiduswriter/fiduswriter) project. The JavaScript bundles are copied verbatim from `static-transpile/` and `static-collected/`. However, three small upstream bugs were fixed in the main project's source so the non-collaborative mode works correctly:
+
+1. **`App.connectWs()`** — unconditionally opened a WebSocket even when `ws_url_base` was empty, causing connection errors.
+2. **`HeaderbarView.saveFileName()`** — crashed when `editor.ws` was undefined in non-collaborative mode.
+3. **`NoCollabSave`** — saved every 10 seconds regardless of whether the document had changed, causing unnecessary version increments. A dirty check (`_hasUnsavedChanges`) was added so saves only happen when content actually changed.
+
+These fixes are candidates for upstreaming into the main Fidus Writer project.
 
 The goal of this POC is to explore what a separated frontend/backend architecture could look like in the future.
 
