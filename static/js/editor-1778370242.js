@@ -25349,6 +25349,7 @@ class NoCollabSave {
         this.saveInterval = null
         this.savePromise = null
         this._beforeUnloadHandler = null
+        this._lastSaveTime = 0
     }
 
     start() {
@@ -25360,7 +25361,8 @@ class NoCollabSave {
             if (
                 !this.editor.waitingForDocument &&
                 !this.savePromise &&
-                this.editor.docInfo.access_rights === "write"
+                this.editor.docInfo.access_rights === "write" &&
+                this._hasUnsavedChanges()
             ) {
                 this.save()
             }
@@ -25370,7 +25372,9 @@ class NoCollabSave {
         // E2EE encryption is async and cannot run reliably in unload handlers.
         if (!this.editor.e2ee?.encrypted) {
             this._beforeUnloadHandler = () => {
-                this._save(true)
+                if (this._hasUnsavedChanges()) {
+                    this._save(true)
+                }
             }
             window.addEventListener("beforeunload", this._beforeUnloadHandler)
             window.addEventListener("pagehide", this._beforeUnloadHandler)
@@ -25402,6 +25406,12 @@ class NoCollabSave {
         } finally {
             this.savePromise = null
         }
+    }
+
+    _hasUnsavedChanges() {
+        return (
+            this.editor.docInfo.updated.getTime() > this._lastSaveTime
+        )
     }
 
     async _save(keepalive = false) {
@@ -25457,6 +25467,7 @@ class NoCollabSave {
             }
             this.editor.docInfo.updated = new Date()
             this.editor.docInfo.confirmedDoc = this.editor.view.state.doc
+            this._lastSaveTime = Date.now()
             // Clear unsent event queues since the full state has been saved.
             this.editor.mod.db.bibDB.unsent = []
             this.editor.mod.db.imageDB.unsent = []

@@ -16,12 +16,12 @@
     "title": "Hello Worlds"
   },
   "doc": {
-    "v": 159,
+    "v": 195,
     "content": {
       "type": "doc",
       "attrs": {
         "documentstyle": "",
-        "tracked": false,
+        "tracked": true,
         "citationstyle": "apa",
         "citationstyles": [
           "american-anthropological-association",
