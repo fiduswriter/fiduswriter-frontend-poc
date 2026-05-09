@@ -85,6 +85,19 @@ app.post("/api/document/get_ws_base/", (_req, res) => {
     res.json({ws_base: ""});
 });
 
+// Get template for document (needed for FIDUS export)
+app.post("/api/document/get_template_for_doc/", (_req, res) => {
+    const docStore = JSON.parse(fs.readFileSync(DATA_FILE, "utf8"));
+    res.json({
+        id: 1,
+        title: docStore.doc.content.attrs.template || "Standard Article",
+        content: docStore.doc.content,
+        doc_version: "3.5",
+        export_templates: [],
+        document_styles: []
+    });
+});
+
 // Get document data
 app.post("/api/document/get_doc_data/", (_req, res) => {
     if (!fs.existsSync(DATA_FILE)) {
