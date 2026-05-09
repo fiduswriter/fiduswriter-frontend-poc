@@ -88,6 +88,8 @@ This will:
 | `POST /api/bibliography/biblist/` | Returns empty bibliography |
 | `POST /api/usermedia/images/` | Returns empty image database |
 | `POST /api/feedback/feedback/` | Accepts feedback messages (logged to console) |
+| `POST /api/django_js_error_hook/` | Client-side error reporting (swallowed silently) |
+| `GET /api/browser_check/` | Browser compatibility check fallback |
 
 ## Limitations of this POC
 
