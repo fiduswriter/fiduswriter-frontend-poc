@@ -33,12 +33,28 @@ http://localhost:3000/document/1/
 
 The editor will load a pre-created demo document. Any changes you make will be auto-saved to `data/document.json` every 10 seconds.
 
+## Updating the frontend from the main repo
+
+A helper script is included to refresh the bundled assets when the main Fidus Writer project is rebuilt:
+
+```bash
+./update-from-source.sh /path/to/fiduswriter/fiduswriter
+```
+
+This will:
+1. Copy the latest JS bundles from `static-transpile/js/`
+2. Copy CSS, fonts, images, and other assets from `static-collected/`
+3. Auto-detect the new build version hash and update `index.html`
+
+**Note:** If `base/templates/app.html` changed significantly (new CSS links, new scripts, etc.), you may still need to update `index.html` manually.
+
 ## Project structure
 
 ```
 .
 ├── server.js              # Minimal Express backend
 ├── package.json           # Node dependencies
+├── update-from-source.sh  # Script to refresh assets from main repo
 ├── index.html             # SPA shell (replaces Django's app.html template)
 ├── data/
 │   └── document.json      # The single stored document
