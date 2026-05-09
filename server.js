@@ -141,7 +141,7 @@ const indexHtml = fs.readFileSync(
     "utf8"
 );
 
-app.get("/", (_req, res) => res.redirect("/document/1/"));
+app.get("/", (_req, res) => res.send(indexHtml));
 app.get("/document/:id/", (_req, res) => res.send(indexHtml));
 
 // Catch-all for any other SPA paths

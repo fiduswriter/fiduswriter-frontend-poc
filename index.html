@@ -110,13 +110,16 @@
                 requestAnimationFrame(customizePOC)
                 return
             }
-            // 1. Rewrite "/" to "/document/1/" before selectPage runs
-            const originalSelectPage = app.selectPage.bind(app)
-            app.selectPage = function() {
-                if (window.location.pathname === "/") {
-                    window.history.replaceState({}, "", "/document/1/")
+            // 1. Serve the editor directly at "/"
+            app.routes[""] = {
+                app: "document",
+                requireLogin: true,
+                open: () => app.routes.document.open(["", "document", "1"]),
+                dbTables: {
+                    data: {
+                        keyPath: "id"
+                    }
                 }
-                return originalSelectPage()
             }
 
             // 2. Remove unused File menu items once editor loads
