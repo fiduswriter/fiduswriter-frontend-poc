@@ -396,6 +396,9 @@ class App {
     }
 
     connectWs() {
+        if (!this.config.ws_url_base) {
+            return
+        }
         this.ws = new _common__rspack_import_4.WebSocketConnector({
             base: this.config.ws_url_base,
             path: "/base/",
@@ -15528,7 +15531,7 @@ __webpack_require__.u = function(chunkId) {
   // return url for filenames not based on template
   
   // return url for filenames based on template
-  return "" + chunkId + "-1778362862.js"
+  return "" + chunkId + "-1778367498.js"
 }
 }();
 // webpack/runtime/global
