@@ -22373,12 +22373,14 @@ class HeaderbarView {
         const docTitleEl = document.body.querySelector("h1#document-title")
         const path = (0,_common__rspack_import_2.cleanPath)(this.getTitle(), docTitleEl.innerText.trim())
         this.editor.docInfo.path = path
-        this.editor.ws.send(() => {
-            return {
-                type: "path_change",
-                path
-            }
-        })
+        if (this.editor.ws) {
+            this.editor.ws.send(() => {
+                return {
+                    type: "path_change",
+                    path
+                }
+            })
+        }
         this.update()
     }
 
