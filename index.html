@@ -104,26 +104,44 @@
     <script type="text/javascript" src="/static/js/app.js" crossorigin="anonymous"></script>
     <!-- POC customizations -->
     <script type="text/javascript">
-        (function removeUnusedMenuItems() {
-            const editor = window.theApp?.page
-            if (!editor?.menu?.headerbarModel) {
-                requestAnimationFrame(removeUnusedMenuItems)
+        (function customizePOC() {
+            const app = window.theApp
+            if (!app?.routes) {
+                requestAnimationFrame(customizePOC)
                 return
             }
-            const fileMenu = editor.menu.headerbarModel.content[0]
-            if (!fileMenu?.content) {
-                requestAnimationFrame(removeUnusedMenuItems)
-                return
+            // 1. Rewrite "/" to "/document/1/" before selectPage runs
+            const originalSelectPage = app.selectPage.bind(app)
+            app.selectPage = function() {
+                if (window.location.pathname === "/") {
+                    window.history.replaceState({}, "", "/document/1/")
+                }
+                return originalSelectPage()
             }
-            // Remove in reverse order so indices remain valid
-            fileMenu.content.splice(6, 1)  // Change password
-            fileMenu.content.splice(3, 1)  // Create copy
-            fileMenu.content.splice(2, 1)  // Save revision
-            fileMenu.content.splice(0, 1)  // Share/Request Access
-            if (editor.menu.headerView) {
-                editor.menu.headerView.update()
+
+            // 2. Remove unused File menu items once editor loads
+            function removeUnusedMenuItems() {
+                const editor = app.page
+                if (!editor?.menu?.headerbarModel) {
+                    requestAnimationFrame(removeUnusedMenuItems)
+                    return
+                }
+                const fileMenu = editor.menu.headerbarModel.content[0]
+                if (!fileMenu?.content) {
+                    requestAnimationFrame(removeUnusedMenuItems)
+                    return
+                }
+                // Remove in reverse order so indices remain valid
+                fileMenu.content.splice(6, 1)  // Change password
+                fileMenu.content.splice(3, 1)  // Create copy
+                fileMenu.content.splice(2, 1)  // Save revision
+                fileMenu.content.splice(0, 1)  // Share/Request Access
+                if (editor.menu.headerView) {
+                    editor.menu.headerView.update()
+                }
+                console.log("POC: removed unused File menu items")
             }
-            console.log("POC: removed unused File menu items")
+            removeUnusedMenuItems()
         })()
     </script>
 </head>

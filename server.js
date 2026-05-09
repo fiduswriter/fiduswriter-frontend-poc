@@ -11,6 +11,11 @@ app.use(express.json());
 // Serve static files
 app.use("/static", express.static(path.join(__dirname, "static")));
 
+// Manifest
+app.get("/manifest.json", (_req, res) => {
+    res.sendFile(path.join(__dirname, "static", "manifest.json"));
+});
+
 // ------------------------------------------------------------------
 // API endpoints
 // ------------------------------------------------------------------
@@ -51,7 +56,7 @@ app.post("/api/base/configuration/", (_req, res) => {
 app.post("/api/bibliography/biblist/", (_req, res) => {
     res.json({
         bib_categories: [],
-        bib_list: false,
+        bib_list: [],
         last_modified: -1,
         number_of_entries: 0,
         user_id: 1
@@ -136,7 +141,7 @@ const indexHtml = fs.readFileSync(
     "utf8"
 );
 
-app.get("/", (_req, res) => res.send(indexHtml));
+app.get("/", (_req, res) => res.redirect("/document/1/"));
 app.get("/document/:id/", (_req, res) => res.send(indexHtml));
 
 // Catch-all for any other SPA paths

@@ -12,25 +12,199 @@
       "contacts": []
     },
     "accessed_via_token": false,
-    "e2ee": false
+    "e2ee": false,
+    "title": "Hello Worlds"
   },
   "doc": {
-    "v": 1,
+    "v": 78,
     "content": {
       "type": "doc",
       "attrs": {
+        "documentstyle": "",
+        "tracked": false,
+        "citationstyle": "apa",
+        "citationstyles": [
+          "american-anthropological-association",
+          "apa",
+          "chicago-author-date",
+          "chicago-note-bibliography",
+          "harvard-cite-them-right",
+          "modern-language-association",
+          "nature",
+          "oxford-university-press-humsoc"
+        ],
+        "language": "en-US",
+        "languages": [
+          "af-ZA",
+          "sq-AL",
+          "ar",
+          "ast",
+          "be",
+          "br",
+          "bg",
+          "ca",
+          "ca-ES-Valencia",
+          "zh-CN",
+          "da",
+          "nl",
+          "en-AU",
+          "en-CA",
+          "en-NZ",
+          "en-ZA",
+          "en-GB",
+          "en-US",
+          "eo",
+          "fr",
+          "gl",
+          "de-DE",
+          "de-AU",
+          "de-CH",
+          "el",
+          "he",
+          "is",
+          "it",
+          "ja",
+          "km",
+          "lt",
+          "ml",
+          "nb-NO",
+          "nn-NO",
+          "fa",
+          "pl",
+          "pt-BR",
+          "pt-PT",
+          "ro",
+          "ru",
+          "tr",
+          "sr-SP-Cy",
+          "sr-SP-Lt",
+          "sk",
+          "sl",
+          "es",
+          "sv",
+          "ta",
+          "tl",
+          "uk"
+        ],
+        "papersize": "A4",
+        "papersizes": [
+          "A4",
+          "US Letter"
+        ],
+        "footnote_marks": [
+          "strong",
+          "em",
+          "link"
+        ],
+        "footnote_elements": [
+          "paragraph",
+          "heading1",
+          "heading2",
+          "heading3",
+          "heading4",
+          "heading5",
+          "heading6",
+          "figure",
+          "ordered_list",
+          "bullet_list",
+          "horizontal_rule",
+          "equation",
+          "citation",
+          "cross_reference",
+          "blockquote",
+          "table"
+        ],
+        "bibliography_header": {},
         "template": "Standard Article",
         "import_id": "standard-article",
-        "citationstyle": "apa",
-        "documentstyle": ""
+        "copyright": {
+          "holder": false,
+          "year": false,
+          "freeToRead": true,
+          "licenses": []
+        },
+        "code_categories": {
+          "listing": {
+            "counter": 0,
+            "enabled": true
+          },
+          "example": {
+            "counter": 0,
+            "enabled": true
+          },
+          "snippet": {
+            "counter": 0,
+            "enabled": false
+          },
+          "tutorial": {
+            "counter": 0,
+            "enabled": false
+          },
+          "exercise": {
+            "counter": 0,
+            "enabled": false
+          },
+          "exercise_solution": {
+            "counter": 0,
+            "enabled": false
+          }
+        },
+        "code_languages": [
+          "javascript",
+          "python",
+          "java",
+          "cpp",
+          "c",
+          "csharp",
+          "php",
+          "ruby",
+          "go",
+          "rust",
+          "swift",
+          "kotlin",
+          "typescript",
+          "html",
+          "css",
+          "sql",
+          "bash",
+          "shell",
+          "r",
+          "matlab",
+          "scala",
+          "perl",
+          "lua",
+          "haskell",
+          "xml",
+          "json",
+          "yaml",
+          "markdown"
+        ]
       },
       "content": [
         {
           "type": "title",
+          "attrs": {
+            "id": "title"
+          },
           "content": [
             {
               "type": "text",
               "text": "Hello World"
+            },
+            {
+              "type": "text",
+              "marks": [
+                {
+                  "type": "insertion",
+                  "attrs": {
+                    "user": 1,
+                    "username": "demo",
+                    "date": 29639460,
+                    "approved": true
+                  }
+                }
+              ],
+              "text": "s"
             }
           ]
         },
@@ -39,8 +213,11 @@
           "attrs": {
             "title": "Subtitle",
             "id": "subtitle",
+            "locking": false,
+            "language": false,
             "optional": "hidden",
             "hidden": true,
+            "help": false,
             "initial": [
               {
                 "type": "heading1",
@@ -48,6 +225,10 @@
                   "id": "H1"
                 }
               }
+            ],
+            "deleted": false,
+            "elements": [
+              "heading1"
             ],
             "marks": [
               "strong",
@@ -60,7 +241,8 @@
             {
               "type": "heading1",
               "attrs": {
-                "id": "H1"
+                "id": "H1",
+                "track": []
               }
             }
           ]
@@ -70,8 +252,13 @@
           "attrs": {
             "title": "Authors",
             "id": "authors",
+            "locking": false,
+            "language": false,
             "optional": "hidden",
             "hidden": true,
+            "help": false,
+            "initial": false,
+            "deleted": false,
             "item_title": "Author",
             "metadata": "authors"
           }
@@ -81,8 +268,33 @@
           "attrs": {
             "title": "Abstract",
             "id": "abstract",
+            "locking": false,
+            "language": false,
             "optional": "hidden",
             "hidden": true,
+            "help": false,
+            "initial": false,
+            "deleted": false,
+            "elements": [
+              "paragraph",
+              "heading1",
+              "heading2",
+              "heading3",
+              "heading4",
+              "heading5",
+              "heading6",
+              "code_block",
+              "figure",
+              "ordered_list",
+              "bullet_list",
+              "horizontal_rule",
+              "equation",
+              "citation",
+              "cross_reference",
+              "blockquote",
+              "footnote",
+              "table"
+            ],
             "marks": [
               "strong",
               "em",
@@ -92,7 +304,10 @@
           },
           "content": [
             {
-              "type": "paragraph"
+              "type": "paragraph",
+              "attrs": {
+                "track": []
+              }
             }
           ]
         },
@@ -101,8 +316,13 @@
           "attrs": {
             "title": "Keywords",
             "id": "keywords",
+            "locking": false,
+            "language": false,
             "optional": "hidden",
             "hidden": true,
+            "help": false,
+            "initial": false,
+            "deleted": false,
             "item_title": "Keyword",
             "metadata": "keywords"
           }
@@ -112,6 +332,33 @@
           "attrs": {
             "title": "Body",
             "id": "body",
+            "locking": false,
+            "language": false,
+            "optional": false,
+            "hidden": false,
+            "help": false,
+            "initial": false,
+            "deleted": false,
+            "elements": [
+              "paragraph",
+              "heading1",
+              "heading2",
+              "heading3",
+              "heading4",
+              "heading5",
+              "heading6",
+              "code_block",
+              "figure",
+              "ordered_list",
+              "bullet_list",
+              "horizontal_rule",
+              "equation",
+              "citation",
+              "cross_reference",
+              "blockquote",
+              "footnote",
+              "table"
+            ],
             "marks": [
               "strong",
               "em",
@@ -122,6 +369,9 @@
           "content": [
             {
               "type": "paragraph",
+              "attrs": {
+                "track": []
+              },
               "content": [
                 {
                   "type": "text",
