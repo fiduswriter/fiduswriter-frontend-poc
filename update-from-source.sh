@@ -35,7 +35,7 @@ echo "Updating from: $SOURCE_DIR"
 # ------------------------------------------------------------------
 echo "Copying JS bundles..."
 mkdir -p "$SCRIPT_DIR/static/js"
-rm -rf "$SCRIPT_DIR/static/js/*"
+rm -rf "$SCRIPT_DIR/static/js/"*
 cp -r "$SOURCE_DIR/static-transpile/js/"* "$SCRIPT_DIR/static/js/"
 
 # ------------------------------------------------------------------
