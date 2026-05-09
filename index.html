@@ -102,6 +102,30 @@
     <script type="text/javascript" src="/static/js/error_hook.js" crossorigin="anonymous"></script>
     <!-- Main page script -->
     <script type="text/javascript" src="/static/js/app.js" crossorigin="anonymous"></script>
+    <!-- POC customizations -->
+    <script type="text/javascript">
+        (function removeUnusedMenuItems() {
+            const editor = window.theApp?.page
+            if (!editor?.menu?.headerbarModel) {
+                requestAnimationFrame(removeUnusedMenuItems)
+                return
+            }
+            const fileMenu = editor.menu.headerbarModel.content[0]
+            if (!fileMenu?.content) {
+                requestAnimationFrame(removeUnusedMenuItems)
+                return
+            }
+            // Remove in reverse order so indices remain valid
+            fileMenu.content.splice(6, 1)  // Change password
+            fileMenu.content.splice(3, 1)  // Create copy
+            fileMenu.content.splice(2, 1)  // Save revision
+            fileMenu.content.splice(0, 1)  // Share/Request Access
+            if (editor.menu.headerView) {
+                editor.menu.headerView.update()
+            }
+            console.log("POC: removed unused File menu items")
+        })()
+    </script>
 </head>
 <body>
     <div id="wait" class="active"><i class="fa fa-spinner fa-pulse"></i></div>
