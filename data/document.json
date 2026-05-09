@@ -1,0 +1,141 @@
+{
+  "doc_info": {
+    "id": 1,
+    "is_owner": true,
+    "access_rights": "write",
+    "path": "/",
+    "owner": {
+      "id": 1,
+      "name": "Demo User",
+      "username": "demo",
+      "avatar": "",
+      "contacts": []
+    },
+    "accessed_via_token": false,
+    "e2ee": false
+  },
+  "doc": {
+    "v": 1,
+    "content": {
+      "type": "doc",
+      "attrs": {
+        "template": "Standard Article",
+        "import_id": "standard-article",
+        "citationstyle": "apa",
+        "documentstyle": ""
+      },
+      "content": [
+        {
+          "type": "title",
+          "content": [
+            {
+              "type": "text",
+              "text": "Hello World"
+            }
+          ]
+        },
+        {
+          "type": "heading_part",
+          "attrs": {
+            "title": "Subtitle",
+            "id": "subtitle",
+            "optional": "hidden",
+            "hidden": true,
+            "initial": [
+              {
+                "type": "heading1",
+                "attrs": {
+                  "id": "H1"
+                }
+              }
+            ],
+            "marks": [
+              "strong",
+              "em",
+              "link"
+            ],
+            "metadata": "subtitle"
+          },
+          "content": [
+            {
+              "type": "heading1",
+              "attrs": {
+                "id": "H1"
+              }
+            }
+          ]
+        },
+        {
+          "type": "contributors_part",
+          "attrs": {
+            "title": "Authors",
+            "id": "authors",
+            "optional": "hidden",
+            "hidden": true,
+            "item_title": "Author",
+            "metadata": "authors"
+          }
+        },
+        {
+          "type": "richtext_part",
+          "attrs": {
+            "title": "Abstract",
+            "id": "abstract",
+            "optional": "hidden",
+            "hidden": true,
+            "marks": [
+              "strong",
+              "em",
+              "link"
+            ],
+            "metadata": "abstract"
+          },
+          "content": [
+            {
+              "type": "paragraph"
+            }
+          ]
+        },
+        {
+          "type": "tags_part",
+          "attrs": {
+            "title": "Keywords",
+            "id": "keywords",
+            "optional": "hidden",
+            "hidden": true,
+            "item_title": "Keyword",
+            "metadata": "keywords"
+          }
+        },
+        {
+          "type": "richtext_part",
+          "attrs": {
+            "title": "Body",
+            "id": "body",
+            "marks": [
+              "strong",
+              "em",
+              "link"
+            ],
+            "metadata": "body"
+          },
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "This is a proof of concept document in Fidus Writer."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "bibliography": {},
+    "images": {},
+    "comments": {}
+  },
+  "time": 1715289600000
+}

@@ -1,0 +1,21 @@
+{
+  "name": "fiduswriter-frontend-poc",
+  "version": "1.0.0",
+  "description": "Proof of concept for a separated Fidus Writer frontend with a minimal Node.js backend",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "fiduswriter",
+    "editor",
+    "prosemirror",
+    "proof-of-concept"
+  ],
+  "author": "",
+  "license": "AGPL-3.0",
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}
