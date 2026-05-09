@@ -25,6 +25,12 @@ app.post("/api/django_js_error_hook/", (_req, res) => {
     res.status(200).json({ok: true});
 });
 
+// Feedback
+app.post("/api/feedback/feedback/", (req, res) => {
+    console.log("Feedback received:", req.body.message);
+    res.status(200).json({ok: true});
+});
+
 // Browser check fallback
 app.get("/api/browser_check/", (_req, res) => {
     res.send("<html><body>Browser OK</body></html>");
