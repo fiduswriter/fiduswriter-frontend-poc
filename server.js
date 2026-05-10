@@ -5,6 +5,16 @@ const path = require("path");
 const app = express();
 const PORT = process.env.PORT || 3000;
 const DATA_FILE = path.join(__dirname, "data", "document.json");
+const FIXTURE_FILE = path.join(__dirname, "fixture", "document.json");
+
+// Ensure data directory and initial document exist
+if (!fs.existsSync(DATA_FILE)) {
+    if (!fs.existsSync(path.dirname(DATA_FILE))) {
+        fs.mkdirSync(path.dirname(DATA_FILE), {recursive: true});
+    }
+    fs.copyFileSync(FIXTURE_FILE, DATA_FILE);
+    console.log("Created initial document from fixture.");
+}
 
 app.use(express.json());
 

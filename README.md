@@ -56,8 +56,10 @@ This will:
 ├── package.json           # Node dependencies
 ├── update-from-source.sh  # Script to refresh assets from main repo
 ├── index.html             # SPA shell (replaces Django's app.html template)
+├── fixture/
+│   └── document.json      # Initial document fixture (copied to data/ on first run)
 ├── data/
-│   └── document.json      # The single stored document (initial fixture)
+│   └── document.json      # Runtime document storage (created from fixture, gitignored)
 ├── static/
 │   ├── js/                # Bundled JavaScript from Fidus Writer (Rspack output)
 │   ├── css/               # Stylesheets
@@ -73,7 +75,11 @@ This will:
 
 ### Data persistence and Git
 
-`data/document.json` is kept in the repository as an initial fixture so the editor can load a document on first run. Runtime edits (version bumps, content changes) are ignored by Git via `git update-index --skip-worktree data/document.json`. If you want to commit an updated fixture, temporarily disable this with `git update-index --no-skip-worktree data/document.json`.
+The `data/` directory is gitignored. On first startup, the server copies `fixture/document.json` into `data/document.json` if it doesn't already exist. This means:
+
+- **To update the initial fixture**: edit `fixture/document.json` and commit it normally.
+- **Runtime changes** to `data/document.json` are ignored by Git automatically.
+- **To reset**: delete `data/document.json` and restart the server.
 
 ## API endpoints provided
 
