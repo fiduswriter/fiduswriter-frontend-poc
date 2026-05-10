@@ -284,9 +284,9 @@ __webpack_require__.r(__webpack_exports__);
 __webpack_require__.d(__webpack_exports__, {
   recreateTransform: function() { return recreateTransform; }
 });
-/* import */ var diff__rspack_import_0 = __webpack_require__("./node_modules/.pnpm/diff@5.2.0/node_modules/diff/lib/index.mjs");
+/* import */ var diff__rspack_import_0 = __webpack_require__("./node_modules/.pnpm/diff@5.2.2/node_modules/diff/lib/index.mjs");
 /* import */ var prosemirror_transform__rspack_import_2 = __webpack_require__("./node_modules/.pnpm/prosemirror-transform@1.10.3/node_modules/prosemirror-transform/dist/index.js");
-/* import */ var rfc6902__rspack_import_1 = __webpack_require__("./node_modules/.pnpm/rfc6902@5.1.2/node_modules/rfc6902/index.js");
+/* import */ var rfc6902__rspack_import_1 = __webpack_require__("./node_modules/.pnpm/rfc6902@5.2.0/node_modules/rfc6902/index.js");
 // See https://gitlab.com/mpapp-public/prosemirror-recreate-steps/blob/master/src/recreate.js
 // We only need this file from the prosemirror-recreate-steps (apache) project, so it's copied
 // in here.
@@ -782,16 +782,20 @@ module.exports = function equal(a, b) {
 
 
 }),
-"./node_modules/.pnpm/rfc6902@5.1.2/node_modules/rfc6902/diff.js": (function (__unused_rspack_module, exports, __webpack_require__) {
+"./node_modules/.pnpm/rfc6902@5.2.0/node_modules/rfc6902/diff.js": (function (__unused_rspack_module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.diffAny = exports.diffObjects = exports.diffArrays = exports.intersection = exports.subtract = exports.isDestructive = void 0;
-var util_1 = __webpack_require__("./node_modules/.pnpm/rfc6902@5.1.2/node_modules/rfc6902/util.js");
+exports.isDestructive = isDestructive;
+exports.subtract = subtract;
+exports.intersection = intersection;
+exports.diffArrays = diffArrays;
+exports.diffObjects = diffObjects;
+exports.diffAny = diffAny;
+var util_1 = __webpack_require__("./node_modules/.pnpm/rfc6902@5.2.0/node_modules/rfc6902/util.js");
 function isDestructive(_a) {
     var op = _a.op;
     return op === 'remove' || op === 'replace' || op === 'copy' || op === 'move';
 }
-exports.isDestructive = isDestructive;
 /**
 List the keys in `minuend` that are not in `subtrahend`.
 
@@ -804,25 +808,16 @@ semantics, where JSON object serialization drops keys with undefined values.
 @returns Array of keys that are in `minuend` but not in `subtrahend`.
 */
 function subtract(minuend, subtrahend) {
-    // initialize empty object; we only care about the keys, the values can be anything
-    var obj = {};
-    // build up obj with all the properties of minuend
-    for (var add_key in minuend) {
-        if (util_1.hasOwnProperty.call(minuend, add_key) && minuend[add_key] !== undefined) {
-            obj[add_key] = 1;
+    var keys = [];
+    for (var key in minuend) {
+        if (util_1.hasOwnProperty.call(minuend, key) &&
+            minuend[key] !== undefined &&
+            !(util_1.hasOwnProperty.call(subtrahend, key) && subtrahend[key] !== undefined)) {
+            keys.push(key);
         }
     }
-    // now delete all the properties of subtrahend from obj
-    // (deleting a missing key has no effect)
-    for (var del_key in subtrahend) {
-        if (util_1.hasOwnProperty.call(subtrahend, del_key) && subtrahend[del_key] !== undefined) {
-            delete obj[del_key];
-        }
-    }
-    // finally, extract whatever keys remain in obj
-    return Object.keys(obj);
+    return keys;
 }
-exports.subtract = subtract;
 /**
 List the keys that shared by all `objects`.
 
@@ -853,7 +848,27 @@ function intersection(objects) {
     // finally, extract whatever keys remain in the counter
     return Object.keys(counter);
 }
-exports.intersection = intersection;
+/**
+List the keys that shared by all `a` and `b`.
+
+The semantics of what constitutes a "key" is described in {@link subtract}.
+
+@param a First object to compare
+@param b Second object to compare
+@returns Array of keys that are in ("own-properties" of) `a` and `b`.
+*/
+function intersection2(a, b) {
+    var keys = [];
+    for (var key in a) {
+        if (util_1.hasOwnProperty.call(a, key) &&
+            a[key] !== undefined &&
+            util_1.hasOwnProperty.call(b, key) &&
+            b[key] !== undefined) {
+            keys.push(key);
+        }
+    }
+    return keys;
+}
 function isArrayAdd(array_operation) {
     return array_operation.op === 'add';
 }
@@ -898,9 +913,8 @@ resulting in an array of 'remove' operations.
 function diffArrays(input, output, ptr, diff) {
     if (diff === void 0) { diff = diffAny; }
     // set up cost matrix (very simple initialization: just a map)
-    var memo = {
-        '0,0': { operations: [], cost: 0 },
-    };
+    var max_length = Math.max(input.length, output.length);
+    var memo = new Map([[0, { operations: [], cost: 0 }]]);
     /**
     Calculate the cheapest sequence of operations required to get from
     input.slice(0, i) to output.slice(0, j).
@@ -913,8 +927,8 @@ function diffArrays(input, output, ptr, diff) {
     */
     function dist(i, j) {
         // memoized
-        var memo_key = "".concat(i, ",").concat(j);
-        var memoized = memo[memo_key];
+        var memo_key = i * max_length + j;
+        var memoized = memo.get(memo_key);
         if (memoized === undefined) {
             // TODO: this !diff(...).length usage could/should be lazy
             if (i > 0 && j > 0 && !diff(input[i - 1], output[j - 1], ptr.add(String(i - 1))).length) {
@@ -964,7 +978,7 @@ function diffArrays(input, output, ptr, diff) {
                 var best = alternatives.sort(function (a, b) { return a.cost - b.cost; })[0];
                 memoized = best;
             }
-            memo[memo_key] = memoized;
+            memo.set(memo_key, memoized);
         }
         return memoized;
     }
@@ -1002,7 +1016,6 @@ function diffArrays(input, output, ptr, diff) {
     }, [[], 0])[0];
     return padded_operations;
 }
-exports.diffArrays = diffArrays;
 function diffObjects(input, output, ptr, diff) {
     if (diff === void 0) { diff = diffAny; }
     // if a key is in input but not output -> remove it
@@ -1015,12 +1028,11 @@ function diffObjects(input, output, ptr, diff) {
         operations.push({ op: 'add', path: ptr.add(key).toString(), value: output[key] });
     });
     // if a key is in both, diff it recursively
-    intersection([input, output]).forEach(function (key) {
+    intersection2(input, output).forEach(function (key) {
         operations.push.apply(operations, diff(input[key], output[key], ptr.add(key)));
     });
     return operations;
 }
-exports.diffObjects = diffObjects;
 /**
 `diffAny()` returns an empty array if `input` and `output` are materially equal
 (i.e., would produce equivalent JSON); otherwise it produces an array of patches
@@ -1064,18 +1076,20 @@ function diffAny(input, output, ptr, diff) {
     // up into multiple patches: so `output` must replace `input` wholesale.
     return [{ op: 'replace', path: ptr.toString(), value: output }];
 }
-exports.diffAny = diffAny;
 
 
 }),
-"./node_modules/.pnpm/rfc6902@5.1.2/node_modules/rfc6902/index.js": (function (__unused_rspack_module, exports, __webpack_require__) {
+"./node_modules/.pnpm/rfc6902@5.2.0/node_modules/rfc6902/index.js": (function (__unused_rspack_module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.createTests = exports.createPatch = exports.applyPatch = exports.Pointer = void 0;
-var pointer_1 = __webpack_require__("./node_modules/.pnpm/rfc6902@5.1.2/node_modules/rfc6902/pointer.js");
+exports.Pointer = void 0;
+exports.applyPatch = applyPatch;
+exports.createPatch = createPatch;
+exports.createTests = createTests;
+var pointer_1 = __webpack_require__("./node_modules/.pnpm/rfc6902@5.2.0/node_modules/rfc6902/pointer.js");
 Object.defineProperty(exports, "Pointer", ({ enumerable: true, get: function () { return pointer_1.Pointer; } }));
-var patch_1 = __webpack_require__("./node_modules/.pnpm/rfc6902@5.1.2/node_modules/rfc6902/patch.js");
-var diff_1 = __webpack_require__("./node_modules/.pnpm/rfc6902@5.1.2/node_modules/rfc6902/diff.js");
+var patch_1 = __webpack_require__("./node_modules/.pnpm/rfc6902@5.2.0/node_modules/rfc6902/patch.js");
+var diff_1 = __webpack_require__("./node_modules/.pnpm/rfc6902@5.2.0/node_modules/rfc6902/diff.js");
 /**
 Apply a 'application/json-patch+json'-type patch to an object.
 
@@ -1088,14 +1102,16 @@ Apply a 'application/json-patch+json'-type patch to an object.
 
 This method mutates the target object in-place.
 
+@param object The object to apply the patch to
+@param patch Array of operations to apply
+@param options Optional customization of patch application behavior
 @returns list of results, one for each operation: `null` indicated success,
          otherwise, the result will be an instance of one of the Error classes:
          MissingError, InvalidOperationError, or TestError.
 */
-function applyPatch(object, patch) {
-    return patch.map(function (operation) { return (0, patch_1.apply)(object, operation); });
+function applyPatch(object, patch, options) {
+    return patch.map(function (operation) { return (0, patch_1.apply)(object, operation, options); });
 }
-exports.applyPatch = applyPatch;
 function wrapVoidableDiff(diff) {
     function wrappedDiff(input, output, ptr) {
         var custom_patch = diff(input, output, ptr);
@@ -1122,7 +1138,6 @@ function createPatch(input, output, diff) {
     // a new Pointer gets a default path of [''] if not specified
     return (diff ? wrapVoidableDiff(diff) : diff_1.diffAny)(input, output, ptr);
 }
-exports.createPatch = createPatch;
 /**
 Create a test operation based on `input`'s current evaluation of the JSON
 Pointer `path`; if such a pointer cannot be resolved, returns undefined.
@@ -1157,11 +1172,10 @@ function createTests(input, patch) {
     });
     return tests;
 }
-exports.createTests = createTests;
 
 
 }),
-"./node_modules/.pnpm/rfc6902@5.1.2/node_modules/rfc6902/patch.js": (function (__unused_rspack_module, exports, __webpack_require__) {
+"./node_modules/.pnpm/rfc6902@5.2.0/node_modules/rfc6902/patch.js": (function (__unused_rspack_module, exports, __webpack_require__) {
 
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
@@ -1179,10 +1193,17 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.apply = exports.InvalidOperationError = exports.test = exports.copy = exports.move = exports.replace = exports.remove = exports.add = exports.TestError = exports.MissingError = void 0;
-var pointer_1 = __webpack_require__("./node_modules/.pnpm/rfc6902@5.1.2/node_modules/rfc6902/pointer.js");
-var util_1 = __webpack_require__("./node_modules/.pnpm/rfc6902@5.1.2/node_modules/rfc6902/util.js");
-var diff_1 = __webpack_require__("./node_modules/.pnpm/rfc6902@5.1.2/node_modules/rfc6902/diff.js");
+exports.InvalidOperationError = exports.TestError = exports.MissingError = void 0;
+exports.add = add;
+exports.remove = remove;
+exports.replace = replace;
+exports.move = move;
+exports.copy = copy;
+exports.test = test;
+exports.apply = apply;
+var pointer_1 = __webpack_require__("./node_modules/.pnpm/rfc6902@5.2.0/node_modules/rfc6902/pointer.js");
+var util_1 = __webpack_require__("./node_modules/.pnpm/rfc6902@5.2.0/node_modules/rfc6902/util.js");
+var diff_1 = __webpack_require__("./node_modules/.pnpm/rfc6902@5.2.0/node_modules/rfc6902/diff.js");
 var MissingError = /** @class */ (function (_super) {
     __extends(MissingError, _super);
     function MissingError(path) {
@@ -1240,21 +1261,36 @@ function _remove(object, key) {
 >  o  If the target location specifies an object member that does exist,
 >     that member's value is replaced.
 */
-function add(object, operation) {
-    var endpoint = pointer_1.Pointer.fromJSON(operation.path).evaluate(object);
+function add(object, operation, options) {
+    var pointer = pointer_1.Pointer.fromJSON(operation.path);
+    // Handle implicit array creation for terminal "/-" paths
+    if ((options === null || options === void 0 ? void 0 : options.implicitArrayCreation) && pointer.tokens[pointer.tokens.length - 1] === '-') {
+        // Try to evaluate the parent (the array itself)
+        var parentEndpoint = pointer.parent().evaluate(object);
+        // If the array property doesn't exist but its parent does,
+        // and this parent is a plain object (not an array),
+        // create an (empty) array that we will add to below.
+        if (parentEndpoint.value === undefined && (0, util_1.objectType)(parentEndpoint.parent) === 'object') {
+            parentEndpoint.parent[parentEndpoint.key] = [];
+        }
+    }
+    var endpoint = pointer.evaluate(object);
     // it's not exactly a "MissingError" in the same way that `remove` is -- more like a MissingParent, or something
     if (endpoint.parent === undefined) {
+        return new MissingError(operation.path);
+    }
+    // When using implicitArrayCreation, validate that "/-" targets are actually arrays
+    if ((options === null || options === void 0 ? void 0 : options.implicitArrayCreation) && endpoint.key === '-' && !Array.isArray(endpoint.parent)) {
         return new MissingError(operation.path);
     }
     _add(endpoint.parent, endpoint.key, (0, util_1.clone)(operation.value));
     return null;
 }
-exports.add = add;
 /**
 > The "remove" operation removes the value at the target location.
 > The target location MUST exist for the operation to be successful.
 */
-function remove(object, operation) {
+function remove(object, operation, options) {
     // endpoint has parent, key, and value properties
     var endpoint = pointer_1.Pointer.fromJSON(operation.path).evaluate(object);
     if (endpoint.value === undefined) {
@@ -1264,7 +1300,6 @@ function remove(object, operation) {
     _remove(endpoint.parent, endpoint.key);
     return null;
 }
-exports.remove = remove;
 /**
 > The "replace" operation replaces the value at the target location
 > with a new value.  The operation object MUST contain a "value" member
@@ -1277,7 +1312,7 @@ exports.remove = remove;
 
 Even more simply, it's like the add operation with an existence check.
 */
-function replace(object, operation) {
+function replace(object, operation, options) {
     var endpoint = pointer_1.Pointer.fromJSON(operation.path).evaluate(object);
     if (endpoint.parent === null) {
         return new MissingError(operation.path);
@@ -1294,7 +1329,6 @@ function replace(object, operation) {
     endpoint.parent[endpoint.key] = (0, util_1.clone)(operation.value);
     return null;
 }
-exports.replace = replace;
 /**
 > The "move" operation removes the value at a specified location and
 > adds it to the target location.
@@ -1310,7 +1344,7 @@ exports.replace = replace;
 
 TODO: throw if the check described in the previous paragraph fails.
 */
-function move(object, operation) {
+function move(object, operation, options) {
     var from_endpoint = pointer_1.Pointer.fromJSON(operation.from).evaluate(object);
     if (from_endpoint.value === undefined) {
         return new MissingError(operation.from);
@@ -1323,7 +1357,6 @@ function move(object, operation) {
     _add(endpoint.parent, endpoint.key, from_endpoint.value);
     return null;
 }
-exports.move = move;
 /**
 > The "copy" operation copies the value at a specified location to the
 > target location.
@@ -1337,7 +1370,7 @@ exports.move = move;
 
 Alternatively, it's like 'move' without the 'remove'.
 */
-function copy(object, operation) {
+function copy(object, operation, options) {
     var from_endpoint = pointer_1.Pointer.fromJSON(operation.from).evaluate(object);
     if (from_endpoint.value === undefined) {
         return new MissingError(operation.from);
@@ -1349,7 +1382,6 @@ function copy(object, operation) {
     _add(endpoint.parent, endpoint.key, (0, util_1.clone)(from_endpoint.value));
     return null;
 }
-exports.copy = copy;
 /**
 > The "test" operation tests that a value at the target location is
 > equal to a specified value.
@@ -1358,7 +1390,7 @@ exports.copy = copy;
 > The target location MUST be equal to the "value" value for the
 > operation to be considered successful.
 */
-function test(object, operation) {
+function test(object, operation, options) {
     var endpoint = pointer_1.Pointer.fromJSON(operation.path).evaluate(object);
     // TODO: this diffAny(...).length usage could/should be lazy
     if ((0, diff_1.diffAny)(endpoint.value, operation.value, new pointer_1.Pointer()).length) {
@@ -1366,7 +1398,6 @@ function test(object, operation) {
     }
     return null;
 }
-exports.test = test;
 var InvalidOperationError = /** @class */ (function (_super) {
     __extends(InvalidOperationError, _super);
     function InvalidOperationError(operation) {
@@ -1382,28 +1413,29 @@ exports.InvalidOperationError = InvalidOperationError;
 Switch on `operation.op`, applying the corresponding patch function for each
 case to `object`.
 */
-function apply(object, operation) {
+function apply(object, operation, options) {
     // not sure why TypeScript can't infer typesafety of:
     //   {add, remove, replace, move, copy, test}[operation.op](object, operation)
     // (seems like a bug)
     switch (operation.op) {
-        case 'add': return add(object, operation);
-        case 'remove': return remove(object, operation);
-        case 'replace': return replace(object, operation);
-        case 'move': return move(object, operation);
-        case 'copy': return copy(object, operation);
-        case 'test': return test(object, operation);
+        case 'add': return add(object, operation, options);
+        case 'remove': return remove(object, operation, options);
+        case 'replace': return replace(object, operation, options);
+        case 'move': return move(object, operation, options);
+        case 'copy': return copy(object, operation, options);
+        case 'test': return test(object, operation, options);
     }
     return new InvalidOperationError(operation);
 }
-exports.apply = apply;
 
 
 }),
-"./node_modules/.pnpm/rfc6902@5.1.2/node_modules/rfc6902/pointer.js": (function (__unused_rspack_module, exports) {
+"./node_modules/.pnpm/rfc6902@5.2.0/node_modules/rfc6902/pointer.js": (function (__unused_rspack_module, exports) {
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.Pointer = exports.escapeToken = exports.unescapeToken = void 0;
+exports.Pointer = void 0;
+exports.unescapeToken = unescapeToken;
+exports.escapeToken = escapeToken;
 /**
 Unescape token part of a JSON Pointer string
 
@@ -1427,7 +1459,6 @@ Whereas, '~' is escaped because escaping '/' uses the '~' character.
 function unescapeToken(token) {
     return token.replace(/~1/g, '/').replace(/~0/g, '~');
 }
-exports.unescapeToken = unescapeToken;
 /** Escape token part of a JSON Pointer string
 
 > '~' needs to be encoded as '~0' and '/'
@@ -1439,7 +1470,6 @@ This is the exact inverse of `unescapeToken()`, so the reverse replacements must
 function escapeToken(token) {
     return token.replace(/~/g, '~0').replace(/\//g, '~1');
 }
-exports.escapeToken = escapeToken;
 /**
 JSON Pointer representation
 */
@@ -1503,16 +1533,29 @@ var Pointer = /** @class */ (function () {
         var tokens = this.tokens.concat(String(token));
         return new Pointer(tokens);
     };
+    /**
+    Create a new Pointer representing the parent of this one.
+  
+    The parent of the empty pointer is the empty pointer.
+  
+    immutable (shallowly)
+    */
+    Pointer.prototype.parent = function () {
+        var tokens = this.tokens.length > 1 ? this.tokens.slice(0, -1) : [''];
+        return new Pointer(tokens);
+    };
     return Pointer;
 }());
 exports.Pointer = Pointer;
 
 
 }),
-"./node_modules/.pnpm/rfc6902@5.1.2/node_modules/rfc6902/util.js": (function (__unused_rspack_module, exports) {
+"./node_modules/.pnpm/rfc6902@5.2.0/node_modules/rfc6902/util.js": (function (__unused_rspack_module, exports) {
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.clone = exports.objectType = exports.hasOwnProperty = void 0;
+exports.hasOwnProperty = void 0;
+exports.objectType = objectType;
+exports.clone = clone;
 exports.hasOwnProperty = Object.prototype.hasOwnProperty;
 function objectType(object) {
     if (object === undefined) {
@@ -1526,7 +1569,6 @@ function objectType(object) {
     }
     return typeof object;
 }
-exports.objectType = objectType;
 function isNonPrimitive(value) {
     // loose-equality checking for null is faster than strict checking for each of null/undefined/true/false
     // checking null first, then calling typeof, is faster than vice-versa
@@ -1547,10 +1589,10 @@ function clone(source) {
     // x.constructor == Array is the fastest way to check if x is an Array
     if (source.constructor == Array) {
         // construction via imperative for-loop is faster than source.map(arrayVsObject)
-        var length_1 = source.length;
+        var length = source.length;
         // setting the Array length during construction is faster than just `[]` or `new Array()`
-        var arrayTarget = new Array(length_1);
-        for (var i = 0; i < length_1; i++) {
+        var arrayTarget = new Array(length);
+        for (var i = 0; i < length; i++) {
             arrayTarget[i] = clone(source[i]);
         }
         return arrayTarget;
@@ -1572,11 +1614,10 @@ function clone(source) {
     }
     return objectTarget;
 }
-exports.clone = clone;
 
 
 }),
-"./node_modules/.pnpm/diff@5.2.0/node_modules/diff/lib/index.mjs": (function (__unused_rspack___webpack_module__, __webpack_exports__, __webpack_require__) {
+"./node_modules/.pnpm/diff@5.2.2/node_modules/diff/lib/index.mjs": (function (__unused_rspack___webpack_module__, __webpack_exports__, __webpack_require__) {
 __webpack_require__.r(__webpack_exports__);
 __webpack_require__.d(__webpack_exports__, {
   Diff: function() { return Diff; },
@@ -2272,10 +2313,10 @@ function parsePatch(uniDiff) {
       } // Diff index
 
 
-      var header = /^(?:Index:|diff(?: -r \w+)+)\s+(.+?)\s*$/.exec(line);
+      var headerMatch = /^(?:Index:|diff(?: -r \w+)+)\s+/.exec(line);
 
-      if (header) {
-        index.index = header[1];
+      if (headerMatch) {
+        index.index = line.substring(headerMatch[0].length).trim();
       }
 
       i++;
@@ -2307,14 +2348,14 @@ function parsePatch(uniDiff) {
 
 
   function parseFileHeader(index) {
-    var fileHeader = /^(---|\+\+\+)\s+(.*)$/.exec(diffstr[i]);
+    var fileHeaderMatch = /^(---|\+\+\+)\s+/.exec(diffstr[i]);
 
-    if (fileHeader) {
-      var keyPrefix = fileHeader[1] === '---' ? 'old' : 'new';
-      var data = fileHeader[2].split('\t', 2);
+    if (fileHeaderMatch) {
+      var keyPrefix = fileHeaderMatch[1] === '---' ? 'old' : 'new';
+      var data = diffstr[i].substring(3).trim().split('\t', 2);
       var fileName = data[0].replace(/\\\\/g, '\\');
 
-      if (/^".*"$/.test(fileName)) {
+      if (fileName.startsWith('"') && fileName.endsWith('"')) {
         fileName = fileName.substr(1, fileName.length - 2);
       }
 
@@ -9169,14 +9210,6 @@ __webpack_require__.r = function(exports) {
 	}
 	Object.defineProperty(exports, '__esModule', { value: true });
 };
-}();
-// webpack/runtime/rspack_version
-!function() {
-__webpack_require__.rv = function() { return "1.6.7"; }
-}();
-// webpack/runtime/rspack_unique_id
-!function() {
-__webpack_require__.ruid = "bundler=rspack@1.6.7";
 }();
 var __webpack_exports__ = {};
 // This entry needs to be wrapped in an IIFE because it needs to be isolated against other modules in the chunk.

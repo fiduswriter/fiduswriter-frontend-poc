@@ -248,10 +248,10 @@ const addAlert = (alertType, alertMsg) => {
         return
     }
     const iconNames = {
-        error: "exclamation-circle",
-        warning: "exclamation-circle",
-        info: "info-circle",
-        success: "check-circle"
+        error: "circle-exclamation",
+        warning: "circle-exclamation",
+        info: "circle-info",
+        success: "circle-check"
     }
     if (!document.getElementById("#alerts-outer-wrapper")) {
         document.body.insertAdjacentHTML(
@@ -371,7 +371,7 @@ const escapeText = text => {
  * @returns {string} HTML for the info tooltip
  */
 const infoTooltip = html =>
-    `<span class="fw-info-tooltip"><i class="fas fa-info-circle"></i><span class="fw-info-tooltip-text">${html}</span></span>`
+    `<span class="fw-info-tooltip"><i class="fa-solid fa-info-circle"></i><span class="fw-info-tooltip-text">${html}</span></span>`
 
 const unescapeText = text =>
     text
@@ -1578,7 +1578,7 @@ const faqTemplate = ({escapedQuestions}) =>
             .map(
                 question => `<li class="faq-item">
                 <div>
-                    <div class="faq-question fw-button fw-light"><i class="fas fa-plus-circle"></i>${question[0]}</div>
+                    <div class="faq-question fw-button fw-light"><i class="fa-solid fa-plus-circle"></i>${question[0]}</div>
                     <div class="faq-answer" style="display: none;">${question[1]}</div>
                 </div>
             </li>`
@@ -2208,7 +2208,7 @@ const cleanPath = (title, path) => {
 const moveFile = (fileId, title, path, moveUrl) => {
     path = cleanPath(title, path)
     return new Promise((resolve, reject) => {
-        ;(0,_network__rspack_import_1.jsonPostJson)(moveUrl, {id: fileId, path}).then(({json}) => {
+        ;(0,_network__rspack_import_1.postJson)(moveUrl, {id: fileId, path}).then(({json}) => {
             if (json.done) {
                 resolve(path)
             } else {
@@ -2285,9 +2285,6 @@ __webpack_require__.d(__webpack_exports__, {
   infoTooltip: function() { return /* reexport safe */ _basic__rspack_import_1.infoTooltip; },
   initSettings: function() { return /* reexport safe */ _settings__rspack_import_16.initSettings; },
   isActivationEvent: function() { return /* reexport safe */ _events__rspack_import_3.isActivationEvent; },
-  jsonPost: function() { return /* reexport safe */ _network__rspack_import_5.jsonPost; },
-  jsonPostBare: function() { return /* reexport safe */ _network__rspack_import_5.jsonPostBare; },
-  jsonPostJson: function() { return /* reexport safe */ _network__rspack_import_5.jsonPostJson; },
   langName: function() { return /* reexport safe */ _basic__rspack_import_1.langName; },
   localizeDate: function() { return /* reexport safe */ _basic__rspack_import_1.localizeDate; },
   longFilePath: function() { return /* reexport safe */ _file__rspack_import_15.longFilePath; },
@@ -2355,9 +2352,6 @@ __webpack_require__.d(__webpack_exports__, {
   get: function() { return get; },
   getCookie: function() { return getCookie; },
   getJson: function() { return getJson; },
-  jsonPost: function() { return jsonPost; },
-  jsonPostBare: function() { return jsonPostBare; },
-  jsonPostJson: function() { return jsonPostJson; },
   post: function() { return post; },
   postBare: function() { return postBare; },
   postJson: function() { return postJson; }
@@ -2426,59 +2420,7 @@ const get = (url, params = {}, csrfToken = false) => {
 const getJson = (url, params = {}, csrfToken = false) =>
     get(url, params, csrfToken).then(response => response.json())
 
-const postBare = (url, params = {}, csrfToken = false) => {
-    const settings = (0,_settings__rspack_import_0.getSettings)()
-    console.warn(
-        `postBare("${url}") is deprecated and will be removed in a future version. ` +
-            "Use jsonPostBare() instead."
-    )
-    if (!csrfToken) {
-        csrfToken = settings.getCsrfToken() // Won't work in web worker.
-    }
-    const body = new FormData()
-    body.append("csrfmiddlewaretoken", csrfToken)
-    Object.keys(params).forEach(key => {
-        const value = params[key]
-        if (typeof value === "object" && value.file && value.filename) {
-            body.append(key, value.file, value.filename)
-        } else if (Array.isArray(value)) {
-            value.forEach(item => body.append(`${key}[]`, item))
-        } else if (
-            typeof value === "object" &&
-            (value.constructor === undefined ||
-                value.constructor.name !== "File")
-        ) {
-            body.append(key, JSON.stringify(value))
-        } else {
-            body.append(key, value)
-        }
-    })
-
-    return fetch(settings.apiUrl(url), {
-        method: "POST",
-        headers: {
-            "X-CSRFToken": csrfToken,
-            Accept: "application/json",
-            "X-Requested-With": "XMLHttpRequest"
-        },
-        credentials: "include",
-        body
-    })
-}
-
-const post = (url, params = {}, csrfToken = false) => {
-    const settings = (0,_settings__rspack_import_0.getSettings)()
-    return postBare(url, params, csrfToken)
-        .then(settings.postResponseHook)
-        .then(handleFetchErrors)
-}
-// post and then return json and status
-const postJson = (url, params = {}, csrfToken = false) =>
-    post(url, params, csrfToken).then(response =>
-        response.json().then(json => ({json, status: response.status}))
-    )
-
-const jsonPostBare = (
+const postBare = (
     url,
     object = {},
     csrfToken = false,
@@ -2526,7 +2468,7 @@ const jsonPostBare = (
     return fetch(settings.apiUrl(url), fetchOptions)
 }
 
-const jsonPost = (
+const post = (
     url,
     object = {},
     csrfToken = false,
@@ -2534,20 +2476,20 @@ const jsonPost = (
     keepalive = false
 ) => {
     const settings = (0,_settings__rspack_import_0.getSettings)()
-    return jsonPostBare(url, object, csrfToken, files, keepalive)
+    return postBare(url, object, csrfToken, files, keepalive)
         .then(settings.postResponseHook)
         .then(handleFetchErrors)
 }
 
 // post json object and return json and status
-const jsonPostJson = (
+const postJson = (
     url,
     object = {},
     csrfToken = false,
     files = {},
     keepalive = false
 ) =>
-    jsonPost(url, object, csrfToken, files, keepalive).then(response =>
+    post(url, object, csrfToken, files, keepalive).then(response =>
         response.json().then(json => ({json, status: response.status}))
     )
 
@@ -3066,7 +3008,7 @@ class OverviewMenuView {
         return `
         <div class="select-action fw-button fw-light fw-large">
             <input type="checkbox" ${menuItem.checked ? "checked" : ""}>
-            <span class="select-action-dropdown"><i class="fa fa-caret-down"></i></span>
+            <span class="select-action-dropdown"><i class="fa-solid fa-caret-down"></i></span>
         </div>
         ${this.getDropdownListHTML(menuItem)}
         `
@@ -3092,7 +3034,7 @@ class OverviewMenuView {
                 )}
             </label>
             <span class="dropdown" aria-hidden="true">
-                <i class="fa fa-caret-down"></i>
+                <i class="fa-solid fa-caret-down"></i>
             </span>
         </div>
         ${this.getDropdownListHTML(menuItem)}
@@ -3136,7 +3078,7 @@ class OverviewMenuView {
                 tabindex="0"
                 role="menuitem">
             ${menuItem.title}
-            ${menuItem.icon ? `<i class="fa fa-${menuItem.icon}" aria-hidden="true"></i>` : ""}
+            ${menuItem.icon ? `<i class="fa-solid fa-${menuItem.icon}" aria-hidden="true"></i>` : ""}
         </button>`
     }
 
@@ -3173,7 +3115,7 @@ class OverviewMenuView {
                 placeholder="${menuItem.title}"
                 aria-label="${menuItem.title}"
                 >
-            ${menuItem.icon ? `<i class="fa fa-${menuItem.icon}" aria-hidden="true"></i>` : ""}
+            ${menuItem.icon ? `<i class="fa-solid fa-${menuItem.icon}" aria-hidden="true"></i>` : ""}
         </div>`
     }
 
@@ -3286,7 +3228,7 @@ __webpack_require__.d(__webpack_exports__, {
 
 
 const setLanguage = (_config, language) =>
-    (0,_network__rspack_import_0.jsonPost)("/api/i18n/setlang/", {language}).then(() => {
+    (0,_network__rspack_import_0.post)("/api/i18n/setlang/", {language}).then(() => {
         // We delete the network cache as this contains the JS
         // translations.
         caches.keys().then(names => {
@@ -7956,6 +7898,19 @@ var TraceLogger = /** @class */ (function () {
 }());
 
 
+
+
+}),
+"./js/schema_export.mjs": (function (__unused_rspack___webpack_module__, __webpack_exports__, __webpack_require__) {
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* import */ var _modules_schema_export_js__rspack_import_0 = __webpack_require__("./js/modules/schema/export.js");
+
+
+const theSchemaExporter = new _modules_schema_export_js__rspack_import_0.SchemaExport()
+
+// We log to console to output to file through management command.
+console.log(theSchemaExporter.init())
 
 
 }),
@@ -23488,7 +23443,7 @@ __webpack_require__.u = function(chunkId) {
   // return url for filenames not based on template
   
   // return url for filenames based on template
-  return "" + chunkId + "-1778370242.js"
+  return "" + chunkId + "-1778441362.js"
 }
 }();
 // webpack/runtime/has_own_property
@@ -23520,7 +23475,6 @@ __webpack_require__.l = function (url, done, key, chunkId) {
 	if (!script) {
 		needAttach = true;
 		script = document.createElement('script');
-
 
 script.timeout = 120;
 if (__webpack_require__.nc) {
@@ -23578,10 +23532,6 @@ __webpack_require__.r = function(exports) {
 // webpack/runtime/public_path
 !function() {
 __webpack_require__.p = "/static/js/";
-}();
-// webpack/runtime/rspack_version
-!function() {
-__webpack_require__.rv = function() { return "1.6.7"; }
 }();
 // webpack/runtime/jsonp_chunk_loading
 !function() {
@@ -23671,28 +23621,14 @@ var runtime = data[2];
 	
 };
 
-var chunkLoadingGlobal = self["webpackChunkfidus_writer"] = self["webpackChunkfidus_writer"] || [];
+var chunkLoadingGlobal = self["rspackChunkfidus_writer"] = self["rspackChunkfidus_writer"] || [];
 chunkLoadingGlobal.forEach(__rspack_jsonp.bind(null, 0));
 chunkLoadingGlobal.push = __rspack_jsonp.bind(null, chunkLoadingGlobal.push.bind(chunkLoadingGlobal));
 
 }();
-// webpack/runtime/rspack_unique_id
-!function() {
-__webpack_require__.ruid = "bundler=rspack@1.6.7";
-}();
-var __webpack_exports__ = {};
-// This entry needs to be wrapped in an IIFE because it needs to be in strict mode.
-!function() {
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* import */ var _modules_schema_export_js__rspack_import_0 = __webpack_require__("./js/modules/schema/export.js");
-
-
-const theSchemaExporter = new _modules_schema_export_js__rspack_import_0.SchemaExport()
-
-// We log to console to output to file through management command.
-console.log(theSchemaExporter.init())
-
-}();
+// module factories are used so entry inlining is disabled
+// startup
+// Load entry module and return exports
+var __webpack_exports__ = __webpack_require__("./js/schema_export.mjs");
 })()
 ;

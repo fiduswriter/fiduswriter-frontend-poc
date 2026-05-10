@@ -6899,14 +6899,6 @@ __webpack_require__.r = function(exports) {
 	Object.defineProperty(exports, '__esModule', { value: true });
 };
 }();
-// webpack/runtime/rspack_version
-!function() {
-__webpack_require__.rv = function() { return "1.6.7"; }
-}();
-// webpack/runtime/rspack_unique_id
-!function() {
-__webpack_require__.ruid = "bundler=rspack@1.6.7";
-}();
 var __webpack_exports__ = {};
 // This entry needs to be wrapped in an IIFE because it needs to be isolated against other modules in the chunk.
 !function() {
